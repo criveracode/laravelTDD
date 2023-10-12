@@ -81,6 +81,18 @@ class RepositoryControllerTest extends TestCase
             ->assertDatabaseHas('repositories', $data);             //Verificamos la informacion en la DB, tabla('repositories') 
     }
 
+    public function test_edit()
+    {
+        $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create(['user_id' => $user->id]); //Creamos un elemento repositorio.
+        $this
+            ->actingAs($user)                                                  //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->get("repositories/$repository->id/edit")                         //Hacemos la consulta
+            ->assertStatus(200)
+            ->assertSee($repository->url)
+            ->assertSee($repository->description);
+    }
+
     public function test_update()
     {
         $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
@@ -101,18 +113,19 @@ class RepositoryControllerTest extends TestCase
 
     public function test_distroy()
     {
-       $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
-       $repository = Repository::factory()->create(['user_id' => $user->id]); //Creamos un elemento repositorio.
-       
+        $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create(['user_id' => $user->id]); //Creamos un elemento repositorio.
 
-       $this
-           ->actingAs($user)                                                  //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
-           ->delete("repositories/$repository->id")                           //Cuando eliminemos un dato.
-           ->assertRedirect('repositories');                                  //Quiero que se redireccione al index de repos.
 
-           $this->assertDatabaseMissing('repositories',                       //Revisa en la base de datos, que no exista esta informacion, la que acabamos de eliminar.
-           $repository->toArray()); 
-       
+        $this
+            ->actingAs($user)                                                  //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->delete("repositories/$repository->id")                           //Cuando eliminemos un dato.
+            ->assertRedirect('repositories');                                  //Quiero que se redireccione al index de repos.
+
+        $this->assertDatabaseMissing(
+            'repositories',                       //Revisa en la base de datos, que no exista esta informacion, la que acabamos de eliminar.
+            $repository->toArray()
+        );
     }
 
     /*
@@ -121,14 +134,14 @@ class RepositoryControllerTest extends TestCase
 
     public function test_validate_store()
     {
-        
+
         $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
 
         $this
             ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
             ->post('repositories', [])                              //Lo enviamos al servidor mediante post, a la ruta que ya configuramos('repositories') pero validamos que no este vacio el formulario.
             ->assertStatus(302)                                     // validamos que no este vacio el formulario, en caso contrario muestre el error 302.
-            ->assertSessionHasErrors(['url','description']);        //Luego vemos los mensajes de error en la vista
+            ->assertSessionHasErrors(['url', 'description']);        //Luego vemos los mensajes de error en la vista
     }
 
 
@@ -141,29 +154,55 @@ class RepositoryControllerTest extends TestCase
             ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
             ->put("repositories/$repository->id", [])               //Actulizamos mediante put, validamos que no esta vacio.
             ->assertStatus(302)                                     // validamos que no este vacio el formulario, en caso contrario muestre el error 302.
-            ->assertSessionHasErrors(['url','description']);        //Luego vemos los mensajes de error en la vista
-   
-     }
+            ->assertSessionHasErrors(['url', 'description']);        //Luego vemos los mensajes de error en la vista
+
+    }
 
 
-     /*
+    /*
       * Politicas de acceso 
       */
 
-      public function test_show_policy()
-     {
+    public function test_show_policy()
+    {
         $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
         $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
-        
+
 
 
         $this
             ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
             ->get("repositories/$repository->id")                   //Cuando eliminemos un dato.
             ->assertStatus(403);                                    //Cuando queremos eliminar algo que no pertenece al usuario el servidor responde este error.
-     }
+    }
 
-      public function test_update_policy()
+    public function test_edit_policy()
+    {
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+
+
+
+        $this
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->get("repositories/$repository->id/edit")                   //Cuando eliminemos un dato.
+            ->assertStatus(403);                                    //Cuando queremos eliminar algo que no pertenece al usuario el servidor responde este error.
+    }
+
+    public function test_distroy_policy()
+    {
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+
+
+
+        $this
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->delete("repositories/$repository->id")                //Cuando eliminemos un dato.
+            ->assertStatus(403);                                    //Cuando queremos eliminar algo que no pertenece al usuario el servidor responde este error.
+    }
+
+    public function test_update_policy()
     {
         $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
         $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
@@ -177,21 +216,4 @@ class RepositoryControllerTest extends TestCase
             ->put("repositories/$repository->id", $data)           //Actulizamos mediante put, como recibiremos variables utilizamos "repositories", cuyo id sea el que ingresaremos:($repository->id)
             ->assertStatus(403);                                   //Cuando queremos actulizar algo que no pertenece al usuario el servidor responde este error.
     }
-
-    public function test_distroy_policy()
-     {
-        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
-        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
-        
-
-
-        $this
-            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
-            ->delete("repositories/$repository->id")                //Cuando eliminemos un dato.
-            ->assertStatus(403);                                    //Cuando queremos eliminar algo que no pertenece al usuario el servidor responde este error.
-     }
 }
-
-
-
-
