@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class RepositoryController extends Controller
 {
+    public function index(Request $request)
+    {
+        return view('repositories.index', [
+            'repositories' => $request->user()->repositories
+        ]);
+    }
+    
     public function store(Request $request)                        //Vamos a recibir todo lo que enviamos a traves del form mediante un request.
     {
         $request->validate([
