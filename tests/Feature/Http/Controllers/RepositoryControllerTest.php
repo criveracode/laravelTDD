@@ -90,9 +90,27 @@ class RepositoryControllerTest extends TestCase
             ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
             ->put("repositories/$repository->id", [])               //Actulizamos mediante put, validamos que no esta vacio.
             ->assertStatus(302)                                     // validamos que no este vacio el formulario, en caso contrario muestre el error 302.
-            ->assertSessionHasErrors(['url','description']); //Luego vemos los mensajes de error en la vista
+            ->assertSessionHasErrors(['url','description']);        //Luego vemos los mensajes de error en la vista
    
      }
 
+     public function test_distroy()
+     {
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+
+        $this
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->delete("repositories/$repository->id")                //Cuando eliminemos un dato.
+            ->assertRedirect('repositories');                       //Quiero que se redireccione al index de repos.
+
+            $this->assertDatabaseMissing('repositories',            //Revisa en la base de datos, que no exista esta informacion, la que acabamos de eliminar.
+            $repository->toArray()); 
+        
+     }
 
 }
+
+
+
+

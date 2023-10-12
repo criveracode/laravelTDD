@@ -28,4 +28,14 @@ class RepositoryController extends Controller
 
         return redirect()->route('repositories.edit',$repository);  //Retornamos a una ruta definida y la vista respository una ves creado y nos muestre la actualizacion.
     }
+
+    public function destroy(Repository $repository)                 //Vamos a recibir todo lo que enviamos a traves del el ropositorio.
+    {
+
+        $repository->delete();                                       //Eliminamos el registro
+
+        return redirect()->route('repositories.index');  //Retornamos a una ruta definida y la vista respository una ves creado y nos muestre la actualizacion.
+    }
+
+
 }
