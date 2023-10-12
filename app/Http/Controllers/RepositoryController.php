@@ -24,6 +24,12 @@ class RepositoryController extends Controller
             'url' => 'required',
             'description' => 'required'
         ]);
+
+        if ($request->user()->id != $repository->user_id )          //El usuario que esta intentando actulizar es dueño del repositorio?.
+        {
+            abort(403);                                             //Si no es dueño arroja un error 403.
+        }
+
         $repository->update($request->all());                       //Actualizamos el repositorio seleccionado de manera masiva
 
         return redirect()->route('repositories.edit',$repository);  //Retornamos a una ruta definida y la vista respository una ves creado y nos muestre la actualizacion.

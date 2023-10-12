@@ -47,21 +47,20 @@ class RepositoryControllerTest extends TestCase
 
     public function test_update()
     {
-        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+        $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create(['user_id' => $user->id]); //Creamos un elemento repositorio.
         $data = [
             'url' => $this->faker->url,
-            'description' => $this->faker->text,                    //Nuestro formulario queremos salvar una url y una descripcion.
+            'description' => $this->faker->text,                               //Nuestro formulario queremos salvar una url y una descripcion.
         ];
 
-        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+        $this
+            ->actingAs($user)                                                  //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->put("repositories/$repository->id", $data)                       //Actulizamos mediante put, como recibiremos variables utilizamos "repositories", cuyo id sea el que ingresaremos:($repository->id)
+            ->assertRedirect("repositories/$repository->id/edit");             //Redireccionamos a la vista del repo:('repositoires')
 
         $this
-            ->actingAs($user)                                      //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
-            ->put("repositories/$repository->id", $data)           //Actulizamos mediante put, como recibiremos variables utilizamos "repositories", cuyo id sea el que ingresaremos:($repository->id)
-            ->assertRedirect("repositories/$repository->id/edit"); //Redireccionamos a la vista del repo:('repositoires')
-
-        $this
-            ->assertDatabaseHas('repositories', $data);            //Verificamos la informacion en la DB, tabla('repositories') 
+            ->assertDatabaseHas('repositories', $data);                        //Verificamos la informacion en la DB, tabla('repositories') 
     }
 
     /*
@@ -77,7 +76,7 @@ class RepositoryControllerTest extends TestCase
             ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
             ->post('repositories', [])                              //Lo enviamos al servidor mediante post, a la ruta que ya configuramos('repositories') pero validamos que no este vacio el formulario.
             ->assertStatus(302)                                     // validamos que no este vacio el formulario, en caso contrario muestre el error 302.
-            ->assertSessionHasErrors(['url','description']); //Luego vemos los mensajes de error en la vista
+            ->assertSessionHasErrors(['url','description']);        //Luego vemos los mensajes de error en la vista
     }
 
 
@@ -109,6 +108,24 @@ class RepositoryControllerTest extends TestCase
         
      }
 
+     /*
+      * Politicas de acceso 
+      */
+
+      public function test_update_policy()
+    {
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+        $data = [
+            'url' => $this->faker->url,
+            'description' => $this->faker->text,                    //Nuestro formulario queremos salvar una url y una descripcion.
+        ];
+
+        $this
+            ->actingAs($user)                                      //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->put("repositories/$repository->id", $data)           //Actulizamos mediante put, como recibiremos variables utilizamos "repositories", cuyo id sea el que ingresaremos:($repository->id)
+            ->assertStatus(403);                                   //Cuando queremos actulizar algo que no pertenece al usuario el servidor responde este error.
+    }
 }
 
 
