@@ -35,8 +35,13 @@ class RepositoryController extends Controller
         return redirect()->route('repositories.edit',$repository);  //Retornamos a una ruta definida y la vista respository una ves creado y nos muestre la actualizacion.
     }
 
-    public function destroy(Repository $repository)                 //Vamos a recibir todo lo que enviamos a traves del el ropositorio.
+    public function destroy(Request $request,Repository $repository)                 //Vamos a recibir todo lo que enviamos a traves del el ropositorio.
     {
+
+        if ($request->user()->id != $repository->user_id )          //El usuario que esta intentando eliminar es dueño del repositorio?.
+        {
+            abort(403);                                             //Si no es dueño arroja un error 403.
+        }
 
         $repository->delete();                                       //Eliminamos el registro
 
