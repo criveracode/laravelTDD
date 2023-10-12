@@ -53,6 +53,16 @@ class RepositoryControllerTest extends TestCase
             ->assertSee($repository->url);
     }
 
+    public function test_show()
+    {
+        $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create(['user_id' => $user->id]); //Creamos un elemento repositorio.
+        $this
+            ->actingAs($user)                                                  //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->get("repositories/$repository->id")                              //Hacemos la consulta
+            ->assertStatus(200);
+    }
+
     public function test_store()
     {
         $data = [
@@ -140,6 +150,19 @@ class RepositoryControllerTest extends TestCase
       * Politicas de acceso 
       */
 
+      public function test_show_policy()
+     {
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+        
+
+
+        $this
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->get("repositories/$repository->id")                   //Cuando eliminemos un dato.
+            ->assertStatus(403);                                    //Cuando queremos eliminar algo que no pertenece al usuario el servidor responde este error.
+     }
+
       public function test_update_policy()
     {
         $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
@@ -167,7 +190,6 @@ class RepositoryControllerTest extends TestCase
             ->delete("repositories/$repository->id")                //Cuando eliminemos un dato.
             ->assertStatus(403);                                    //Cuando queremos eliminar algo que no pertenece al usuario el servidor responde este error.
      }
-
 }
 
 

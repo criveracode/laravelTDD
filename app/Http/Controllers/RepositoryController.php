@@ -13,6 +13,18 @@ class RepositoryController extends Controller
             'repositories' => $request->user()->repositories
         ]);
     }
+
+    public function show(Request $request,Repository $repository)   //Vamos a recibir todo lo que enviamos a traves del el ropositorio.
+    {
+
+        if ($request->user()->id != $repository->user_id )          //El usuario que esta intentando eliminar es dueño del repositorio?.
+        {
+            abort(403);                                             //Si no es dueño arroja un error 403.
+        }                                  
+
+        return view('repositories.show', compact('repository'));    //Retornamos a una vista.
+    }
+
     
     public function store(Request $request)                        //Vamos a recibir todo lo que enviamos a traves del form mediante un request.
     {
