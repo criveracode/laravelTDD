@@ -31,29 +31,29 @@ class RepositoryControllerTest extends TestCase
     {
         $data = [
             'url' => $this->faker->url,
-            'description' => $this->faker->text,        //Nuestro formulario queremos salvar una url y una descripcion.
+            'description' => $this->faker->text,                    //Nuestro formulario queremos salvar una url y una descripcion.
         ];
 
-        $user = User::factory()->create();              //Creamos un usuario que iniciara sesion.
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
 
         $this
-            ->actingAs($user)                           //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
-            ->post('repositories', $data)               //Lo enviamos al servidor mediante post, a la ruta que ya configuramos('repositories') a traves del formulario que creamos:($data)
-            ->assertRedirect('repositories');           //Redireccionamos a la vista del repo:('repositoires')
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->post('repositories', $data)                           //Lo enviamos al servidor mediante post, a la ruta que ya configuramos('repositories') a traves del formulario que creamos:($data)
+            ->assertRedirect('repositories');                       //Redireccionamos a la vista del repo:('repositoires')
 
         $this
-            ->assertDatabaseHas('repositories', $data); //Verificamos la informacion en la DB, tabla('repositories') 
+            ->assertDatabaseHas('repositories', $data);             //Verificamos la informacion en la DB, tabla('repositories') 
     }
 
     public function test_update()
     {
-        $repository = Repository::factory()->create();  //Creamos un elemento repositorio.
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
         $data = [
             'url' => $this->faker->url,
-            'description' => $this->faker->text,        //Nuestro formulario queremos salvar una url y una descripcion.
+            'description' => $this->faker->text,                    //Nuestro formulario queremos salvar una url y una descripcion.
         ];
 
-        $user = User::factory()->create();              //Creamos un usuario que iniciara sesion.
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
 
         $this
             ->actingAs($user)                                      //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
@@ -63,5 +63,36 @@ class RepositoryControllerTest extends TestCase
         $this
             ->assertDatabaseHas('repositories', $data);            //Verificamos la informacion en la DB, tabla('repositories') 
     }
+
+    /*
+     * Validaciones
+     */
+
+    public function test_validate_store()
+    {
+        
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+
+        $this
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->post('repositories', [])                              //Lo enviamos al servidor mediante post, a la ruta que ya configuramos('repositories') pero validamos que no este vacio el formulario.
+            ->assertStatus(302)                                     // validamos que no este vacio el formulario, en caso contrario muestre el error 302.
+            ->assertSessionHasErrors(['url','description']); //Luego vemos los mensajes de error en la vista
+    }
+
+
+    public function test_validate_update()
+    {
+        $repository = Repository::factory()->create();              //Creamos un elemento repositorio.
+        $user = User::factory()->create();                          //Creamos un usuario que iniciara sesion.
+
+        $this
+            ->actingAs($user)                                       //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->put("repositories/$repository->id", [])               //Actulizamos mediante put, validamos que no esta vacio.
+            ->assertStatus(302)                                     // validamos que no este vacio el formulario, en caso contrario muestre el error 302.
+            ->assertSessionHasErrors(['url','description']); //Luego vemos los mensajes de error en la vista
+   
+     }
+
 
 }
