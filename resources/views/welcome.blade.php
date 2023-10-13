@@ -6,7 +6,7 @@
 
         <title>Laravel</title>
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     </head>
     <body class="bg-gray-200">
         <ul class="max-w-lg bg-white border-r border-gray-300 shadow-xl">
