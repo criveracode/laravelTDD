@@ -63,6 +63,15 @@ class RepositoryControllerTest extends TestCase
             ->assertStatus(200);
     }
 
+    public function test_create()
+    {
+        $user = User::factory()->create();                                     //Creamos un usuario que iniciara sesion.
+        $this
+            ->actingAs($user)                                                 //Iniciaremos sesion y le diremos actua como el usuario que acabamos de crear.
+            ->get("repositories/create")                                      //Hacemos la consulta
+            ->assertStatus(200);
+    }
+
     public function test_store()
     {
         $data = [

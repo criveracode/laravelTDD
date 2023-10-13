@@ -36,6 +36,14 @@ class RepositoryController extends Controller
         return view('repositories.edit', compact('repository'));    //Retornamos a una vista.
     }
 
+    public function create()                                        //Vamos a recibir todo lo que enviamos a traves del el ropositorio.
+    {
+
+        return view('repositories.create');                         //Retornamos a una vista.
+                                
+
+   }
+
     
     public function store(Request $request)                        //Vamos a recibir todo lo que enviamos a traves del form mediante un request.
     {
@@ -77,6 +85,8 @@ class RepositoryController extends Controller
 
         return redirect()->route('repositories.index');  //Retornamos a una ruta definida y la vista respository una ves creado y nos muestre la actualizacion.
     }
+
+
 
 
 }
